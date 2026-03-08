@@ -30,3 +30,38 @@ button:hover{
 ul{
     margin: 0;
 }
+
+/* Flexbox aligns the link and trash icon perfectly */
+li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+/* Style the links */
+a {
+    color: rgb(5, 160, 5);
+    text-decoration: underline;
+    word-break: break-all; /* Prevents super long URLs from breaking the layout */
+    margin-right: 10px;
+}
+a:hover {
+    color: red;
+}
+.trash-icon {
+    width: 18px; 
+    height: 18px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s ease-in-out;
+}
+.trash-icon:hover {
+    opacity: 1;
+}
+#warning-el {
+    color: red;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 5px 0 0 2px;
+}
