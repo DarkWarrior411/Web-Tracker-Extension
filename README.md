@@ -1,44 +1,31 @@
-# Web Tracker Extension 🕸️
+# <img src="icon.png" width="35" align="top"> Web Tracker Pro
 
-A simple and efficient Google Chrome Extension designed to help users track leads, save interesting URLs, and store manual notes. The data is persisted locally, ensuring your list remains available even after you close the browser.
+A smart Chrome extension that goes beyond standard bookmarks. Web Tracker Pro allows you to manually save text inputs or instantly clip the active tab's URL for later reference. 
 
-## 🚀 Features
+Currently serving as a foundational list manager, this project is actively evolving into a full-fledged "Read-It-Later" tool capable of deep-linking directly to your exact scroll position on a saved web page.
 
-* **Save Input:** Manually type any text or URL and save it to your list.
-* **Save Tab:** One-click feature to grab the URL of the current active browser tab.
-* **Persistent Storage:** Uses `localStorage` to keep your data safe between sessions.
-* **Hyperlinks:** Automatically renders saved items as clickable links.
-* **Safety Clear:** Requires a **double-click** to delete all entries to prevent accidental data loss.
+## 🚀 Current Features
+* **Manual Entry & Tab Clipping:** Save custom text/links via the input field, or grab the active tab's URL with a single click.
+* **Smart Validation:** Prevents empty saves, trims whitespace, and features dynamic warning messages that clear as you type.
+* **Keyboard Support:** Hit "Enter" to quickly save inputs without reaching for the mouse.
+* **Precision Deletion:** Delete individual items using the inline trash icon, or clear everything at once using the double-click "Delete All" safeguard.
 
-## 🛠️ Technologies Used
-
-* **HTML5 & CSS3** for structure and styling.
-* **JavaScript (ES6)** for logic and DOM manipulation.
-* **Chrome Extension API** (Manifest V3) for browser tab integration.
-* **JSON** for data handling.
-
-## 📦 Installation
-
-Since this extension is not hosted on the Chrome Web Store yet, you can install it manually using "Developer Mode":
-
-1.  **Clone or Download** this repository to your local machine.
-2.  Open Google Chrome and navigate to `chrome://extensions/`.
-3.  Toggle the **Developer mode** switch in the top-right corner.
-4.  Click the **Load unpacked** button on the top-left.
-5.  Select the folder where you saved this project.
-6.  The **Web Tracker** icon should now appear in your browser toolbar!
-
-## 📖 Usage Guide
-
-1.  **Input Field:** Type any text into the box and click **Save Input**.
-2.  **Save Tab:** If you are on a website you want to save, simply open the extension and click **Save Tab**.
-3.  **Delete All:** To clear your list, **double-click** the "Delete All" button.
+## 📦 Installation (Developer Mode)
+1. Clone or download this repository to your local machine.
+2. Open Google Chrome and navigate to `chrome://extensions/`.
+3. Toggle on **Developer mode** in the top right corner.
+4. Click **Load unpacked** in the top left corner.
+5. Select the extension folder.
+6. Pin the extension to your toolbar for easy access!
 
 ## 📂 Project Structure
+* `manifest.json`: Extension configuration and permissions.
+* `index.html` / `style.css`: The UI layout and styling for the popup.
+* `index.js`: The core logic for saving, rendering, and deleting items via `localStorage`.
+* `icon.png` / `trash.png`: Visual assets for the extension and UI.
 
-```text
-├── icon.png          # Extension icon
-├── index.html        # Main popup interface
-├── index.js          # Application logic
-├── manifest.json     # Chrome extension configuration
-└── style.css         # Styling for the popup
+## 🗺️ Upcoming Phases
+* **Phase 1: Smart Saving (Data Quality)** Prevent duplicate entries and automatically fetch the active tab's actual Page Title (instead of just showing raw URLs) for better readability.
+* **Phase 2: The "Read-It-Later" Superpower** Inject a temporary script to capture the user's exact Y-axis scroll position when saving a tab. Clicking the saved link will auto-scroll them back to that exact spot.
+* **Phase 3: Cloud Sync & Backup** Migrate from `localStorage` to `chrome.storage.sync` so links follow the user across devices, and add Export/Import buttons for data portability.
+* **Phase 4: Power User UI** Implement a live search/filter bar at the top of the popup to easily navigate massive lists of saved articles.
