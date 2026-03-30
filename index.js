@@ -36,7 +36,7 @@ saveInput.addEventListener("click", function() {
             warningEl.textContent = "Already saved in your list!"
             warningEl.style.color = "#ffaa00"
         } else {
-            myLeads.push({ title: val, url: val })
+            myLeads.push({ title: val, url: val, scrollY: 0 })
             inputEl.value = ""
             warningEl.textContent = "" 
             localStorage.setItem("myLeads", JSON.stringify(myLeads))
@@ -50,17 +50,28 @@ saveInput.addEventListener("click", function() {
 
 saveTab.addEventListener("click", function() {
     chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        const currentUrl = tabs[0].url
-        const currentTitle = tabs[0].title
+        const currentTab = tabs[0]
+        const currentUrl = currentTab.url
+        const currentTitle = currentTab.title
         
         if (isDuplicate(currentUrl)) {
             warningEl.textContent = "This tab is already saved!"
             warningEl.style.color = "#ffaa00"
         } else {
-            myLeads.push({ title: currentTitle, url: currentUrl })
-            warningEl.textContent = ""
-            localStorage.setItem("myLeads", JSON.stringify(myLeads))
-            render(myLeads)
+            chrome.scripting.executeScript({
+                target: {tabId: currentTab.id},
+                func: () => window.scrollY
+            }, (injectionResults) => {
+                let scrollPos = 0
+                if (injectionResults && injectionResults[0] && injectionResults[0].result) {
+                    scrollPos = injectionResults[0].result
+                }
+
+                myLeads.push({ title: currentTitle, url: currentUrl, scrollY: scrollPos })
+                warningEl.textContent = ""
+                localStorage.setItem("myLeads", JSON.stringify(myLeads))
+                render(myLeads)
+            })
         }
     })
 })
@@ -77,6 +88,14 @@ ulEl.addEventListener("click", function(e) {
         myLeads.splice(index, 1) 
         localStorage.setItem("myLeads", JSON.stringify(myLeads))
         render(myLeads)
+    } else if (e.target.classList.contains("lead-link")) {
+        e.preventDefault() 
+        const url = e.target.getAttribute("data-url")
+        const scrollY = parseInt(e.target.getAttribute("data-scroll"), 10) || 0
+
+        chrome.storage.local.set({ targetScroll: { url: url, y: scrollY } }, () => {
+            chrome.tabs.create({ url: url })
+        })
     }
 })
 
@@ -85,10 +104,11 @@ function render(leads) {
     for (let i = 0; i < leads.length; i++) {
         const leadTitle = typeof leads[i] === 'string' ? leads[i] : leads[i].title
         const leadUrl = typeof leads[i] === 'string' ? leads[i] : leads[i].url
+        const leadScroll = leads[i].scrollY || 0
         
         myList += `
             <li>
-                <a target="_blank" href="${leadUrl}">
+                <a href="#" class="lead-link" data-url="${leadUrl}" data-scroll="${leadScroll}">
                     ${leadTitle}
                 </a>
                 <img src="trash.png" class="trash-icon" data-index="${i}" alt="Delete">
