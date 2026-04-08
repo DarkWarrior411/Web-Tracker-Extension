@@ -65,3 +65,21 @@ a:hover {
     font-weight: bold;
     margin: 5px 0 0 2px;
 }
+.backup-controls {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+#export-btn, #import-btn {
+    background-color: #007bff;
+    border: 2px solid #007bff;
+    flex: 1;
+    font-size: 13px;
+    padding: 6px 10px;
+}
+#export-btn:hover, #import-btn:hover {
+    border-color: #0056b3;
+}
+#import-file {
+    display: none;
+}

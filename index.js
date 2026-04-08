@@ -3,14 +3,18 @@ const inputEl = document.getElementById("input-el")
 const saveInput = document.getElementById("saveinput-btn")
 const saveTab = document.getElementById("savetab-btn")
 const deleteAll = document.getElementById("delete-btn")
+const exportBtn = document.getElementById("export-btn")
+const importBtn = document.getElementById("import-btn")
+const importFile = document.getElementById("import-file")
 const ulEl = document.getElementById("ul-el")
 const warningEl = document.getElementById("warning-el")
-const leadLocalStorage = JSON.parse(localStorage.getItem("myLeads"))
 
-if (leadLocalStorage) {
-    myLeads = leadLocalStorage
-    render(myLeads)
-}
+chrome.storage.sync.get("myLeads", function(data) {
+    if (data.myLeads) {
+        myLeads = data.myLeads
+        render(myLeads)
+    }
+})
 
 function isDuplicate(urlToCheck) {
     return myLeads.some(lead => {
@@ -39,7 +43,7 @@ saveInput.addEventListener("click", function() {
             myLeads.push({ title: val, url: val, scrollY: 0 })
             inputEl.value = ""
             warningEl.textContent = "" 
-            localStorage.setItem("myLeads", JSON.stringify(myLeads))
+            chrome.storage.sync.set({ myLeads: myLeads })
             render(myLeads)
         }
     } else {
@@ -69,7 +73,7 @@ saveTab.addEventListener("click", function() {
 
                 myLeads.push({ title: currentTitle, url: currentUrl, scrollY: scrollPos })
                 warningEl.textContent = ""
-                localStorage.setItem("myLeads", JSON.stringify(myLeads))
+                chrome.storage.sync.set({ myLeads: myLeads })
                 render(myLeads)
             })
         }
@@ -77,16 +81,68 @@ saveTab.addEventListener("click", function() {
 })
 
 deleteAll.addEventListener("dblclick", function() {
-    localStorage.clear()
-    myLeads = []
-    render(myLeads)
+    chrome.storage.sync.remove("myLeads", function() {
+        myLeads = []
+        render(myLeads)
+    })
+})
+
+exportBtn.addEventListener("click", function() {
+    const blob = new Blob([JSON.stringify(myLeads)], { type: "application/json" })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = "web_tracker_backup.json"
+    a.click()
+    URL.revokeObjectURL(url)
+})
+
+importBtn.addEventListener("click", function() {
+    importFile.click()
+})
+
+importFile.addEventListener("change", function(e) {
+    const file = e.target.files[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = function(event) {
+        try {
+            const importedData = JSON.parse(event.target.result)
+            if (Array.isArray(importedData)) {
+                let newItemsAdded = 0
+                importedData.forEach(item => {
+                    const urlToCheck = typeof item === 'string' ? item : item.url
+                    if (!isDuplicate(urlToCheck)) {
+                        myLeads.push(item)
+                        newItemsAdded++
+                    }
+                })
+                
+                if (newItemsAdded > 0) {
+                    chrome.storage.sync.set({ myLeads: myLeads })
+                    render(myLeads)
+                    warningEl.textContent = `Successfully imported ${newItemsAdded} new items!`
+                    warningEl.style.color = "rgb(5, 160, 5)"
+                } else {
+                    warningEl.textContent = "No new items to import (all duplicates)."
+                    warningEl.style.color = "#ffaa00"
+                }
+            }
+        } catch (err) {
+            warningEl.textContent = "Invalid backup file!"
+            warningEl.style.color = "red"
+        }
+    }
+    reader.readAsText(file)
+    e.target.value = "" 
 })
 
 ulEl.addEventListener("click", function(e) {
     if (e.target.classList.contains("trash-icon")) {
         const index = e.target.getAttribute("data-index")
         myLeads.splice(index, 1) 
-        localStorage.setItem("myLeads", JSON.stringify(myLeads))
+        chrome.storage.sync.set({ myLeads: myLeads })
         render(myLeads)
     } else if (e.target.classList.contains("lead-link")) {
         e.preventDefault() 
