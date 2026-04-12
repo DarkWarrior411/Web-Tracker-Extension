@@ -24,7 +24,7 @@ Currently serving as a foundational list manager, this project is actively evolv
 * `index.js`: The core logic for saving, rendering, and deleting items via `localStorage`.
 * `icon.png` / `trash.png`: Visual assets for the extension and UI.
 
-## 🗺️ Upcoming Phases
+## 🗺️ Phases in which project was completed
 * **Phase 1: Smart Saving (Data Quality)** Prevent duplicate entries and automatically fetch the active tab's actual Page Title (instead of just showing raw URLs) for better readability.
 * **Phase 2: The "Read-It-Later" Superpower** Inject a temporary script to capture the user's exact Y-axis scroll position when saving a tab. Clicking the saved link will auto-scroll them back to that exact spot.
 * **Phase 3: Cloud Sync & Backup** Migrate from `localStorage` to `chrome.storage.sync` so links follow the user across devices, and add Export/Import buttons for data portability.
