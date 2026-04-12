@@ -83,3 +83,16 @@ a:hover {
 #import-file {
     display: none;
 }
+#search-el {
+    width: 400px;
+    height: 25px;
+    margin-bottom: 10px;
+    border: 1.5px solid #ccc;
+    background-color: #f8f9fa;
+    padding-left: 5px;
+}
+#search-el:focus {
+    outline: none;
+    border-color: rgb(5, 160, 5);
+    background-color: white;
+}

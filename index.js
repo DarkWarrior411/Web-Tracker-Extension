@@ -1,4 +1,5 @@
 let myLeads = []
+const searchEl = document.getElementById("search-el")
 const inputEl = document.getElementById("input-el")
 const saveInput = document.getElementById("saveinput-btn")
 const saveTab = document.getElementById("savetab-btn")
@@ -23,6 +24,16 @@ function isDuplicate(urlToCheck) {
     })
 }
 
+searchEl.addEventListener("input", function(e) {
+    const searchQuery = e.target.value.toLowerCase()
+    const filteredLeads = myLeads.filter(lead => {
+        const leadTitle = (typeof lead === 'string' ? lead : lead.title).toLowerCase()
+        const leadUrl = (typeof lead === 'string' ? lead : lead.url).toLowerCase()
+        return leadTitle.includes(searchQuery) || leadUrl.includes(searchQuery)
+    })
+    render(filteredLeads)
+})
+
 inputEl.addEventListener("keypress", function(e) {
     if (e.key === "Enter") {
         saveInput.click()
@@ -42,6 +53,7 @@ saveInput.addEventListener("click", function() {
         } else {
             myLeads.push({ title: val, url: val, scrollY: 0 })
             inputEl.value = ""
+            searchEl.value = ""
             warningEl.textContent = "" 
             chrome.storage.sync.set({ myLeads: myLeads })
             render(myLeads)
@@ -72,6 +84,7 @@ saveTab.addEventListener("click", function() {
                 }
 
                 myLeads.push({ title: currentTitle, url: currentUrl, scrollY: scrollPos })
+                searchEl.value = ""
                 warningEl.textContent = ""
                 chrome.storage.sync.set({ myLeads: myLeads })
                 render(myLeads)
@@ -83,6 +96,7 @@ saveTab.addEventListener("click", function() {
 deleteAll.addEventListener("dblclick", function() {
     chrome.storage.sync.remove("myLeads", function() {
         myLeads = []
+        searchEl.value = ""
         render(myLeads)
     })
 })
@@ -121,6 +135,7 @@ importFile.addEventListener("change", function(e) {
                 
                 if (newItemsAdded > 0) {
                     chrome.storage.sync.set({ myLeads: myLeads })
+                    searchEl.value = ""
                     render(myLeads)
                     warningEl.textContent = `Successfully imported ${newItemsAdded} new items!`
                     warningEl.style.color = "rgb(5, 160, 5)"
@@ -141,9 +156,24 @@ importFile.addEventListener("change", function(e) {
 ulEl.addEventListener("click", function(e) {
     if (e.target.classList.contains("trash-icon")) {
         const index = e.target.getAttribute("data-index")
-        myLeads.splice(index, 1) 
-        chrome.storage.sync.set({ myLeads: myLeads })
-        render(myLeads)
+        
+        const deleteUrl = e.target.previousElementSibling.getAttribute("data-url")
+        const actualIndex = myLeads.findIndex(lead => {
+            const leadUrl = typeof lead === 'string' ? lead : lead.url
+            return leadUrl === deleteUrl
+        })
+
+        if (actualIndex > -1) {
+            myLeads.splice(actualIndex, 1) 
+            chrome.storage.sync.set({ myLeads: myLeads })
+            
+            if (searchEl.value.trim() !== "") {
+                const event = new Event('input')
+                searchEl.dispatchEvent(event)
+            } else {
+                render(myLeads)
+            }
+        }
     } else if (e.target.classList.contains("lead-link")) {
         e.preventDefault() 
         const url = e.target.getAttribute("data-url")
